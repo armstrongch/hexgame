@@ -7,6 +7,32 @@
 			.ms {
 				font-family: monospace;
 			}
+			.tooltip {
+				position: relative;
+				display: inline-block;
+				cursor: help;
+			}
+
+			/* Tooltip text */
+			.tooltip .tooltiptext {
+				visibility: hidden;
+				width: 120px;
+				background-color: black;
+				color: #fff;
+				text-align: center;
+				padding: 5px 0;
+				border-radius: 6px;
+
+				position: absolute;
+				z-index: 1;
+			}
+
+			/* Show the tooltip text when you mouse over the tooltip container */
+			.tooltip:hover .tooltiptext {
+				visibility: visible;
+				top: -5px;
+				left: 115%;
+			}
 		</style>
 	</head>
 	
@@ -29,6 +55,7 @@
 			var spaceAscii = "&nbsp;";
 			
 			var grid = [];
+			var tooltips = [];
 			var width = 0;
 			var height = 0;
 			
@@ -38,27 +65,34 @@
 				height = 5;
 				lines = "";
 				
-				grid = [];
 				for (let w = 0; w < width; w++)
 				{
 					var col = [];
+					var colClone = [];
 					var secondCol = [];
+					var secondColClone = [];
 					for (let h = 0; h < height; h++)
 					{
 						col.push("&nbsp;");
+						colClone.push("&nbsp;");
 						if ((w < width - 1) && (h < height - 1))
 						{
 							secondCol.push("&nbsp;");
+							secondColClone.push("&nbsp;");
 						}
 					}
 					grid.push(col);
+					tooltips.push(colClone);
 					if (secondCol.length > 0)
 					{
 						grid.push(secondCol);
+						tooltips.push(secondCol);
 					}
 				}
 				
 				grid[2][2] = "@";
+				tooltips[2][2] = "Player";
+				
 				drawGrid();
 			}
 			
@@ -96,7 +130,15 @@
 								}
 								if (h < grid[w].length)
 								{
-									addToLine = addToLine.replace("[REPLACE_ME]", grid[w][h]);
+									if (tooltips[w][h] != "&nbsp;")
+									{
+										var toolTipReplace = "<span class=\"tooltip\">" + grid[w][h] + "<span class=\"tooltiptext\">" + tooltips[w][h] + "</span></span>"
+										addToLine = addToLine.replace("[REPLACE_ME]", toolTipReplace);
+									}
+									else
+									{
+										addToLine = addToLine.replace("[REPLACE_ME]", grid[w][h]);
+									}
 								}
 								else
 								{
