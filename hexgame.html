@@ -46,10 +46,10 @@
 				"&nbsp;&nbsp;&nbsp;_______&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;",//0
 				"&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\\&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;",//1
 				"&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\\&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;",//2
-				"/&nbsp;&nbsp;&nbsp;&nbsp;[REPLACE_ME]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\\________",//3
+				"/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[REPLACE_ME_0]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\\________",//3
 				"\\&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;",//4
 				"&nbsp;\\&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", //5
-				"&nbsp;&nbsp;\\_______/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;",//6
+				"&nbsp;&nbsp;\\_______/&nbsp;&nbsp;&nbsp;&nbsp;[REPLACE_ME_1]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;",//6
 			];
 			
 			var spaceAscii = "&nbsp;";
@@ -61,8 +61,8 @@
 			
 			function setup()
 			{
-				width = 5;
-				height = 5;
+				width = 3;
+				height = 3;
 				lines = "";
 				
 				for (let w = 0; w < width; w++)
@@ -86,12 +86,34 @@
 					if (secondCol.length > 0)
 					{
 						grid.push(secondCol);
-						tooltips.push(secondCol);
+						tooltips.push(secondColClone);
 					}
 				}
 				
+				grid[0][0] = "@";
+				tooltips[0][0] = "0,0";
+				
+				grid[1][0] = "@";
+				tooltips[1][0] = "1,0";
+				
+				grid[2][0] = "@";
+				tooltips[2][0] = "2,0";
+				
+				grid[0][1] = "@";
+				tooltips[0][1] = "0,1";
+				
+				grid[1][1] = "@";
+				tooltips[1][1] = "1,1";
+				
+				grid[2][1] = "@";
+				tooltips[2][1] = "2,1";
+				
+				grid[0][2] = "@";
+				tooltips[0][2] = "0,2";
+				
 				grid[2][2] = "@";
-				tooltips[2][2] = "Player";
+				tooltips[2][2] = "2,2";
+				
 				
 				drawGrid();
 			}
@@ -105,6 +127,12 @@
 						var line = "";
 						for (let w = 0; w < width; w++)
 						{
+							//w = 0, gridW = 0, 1
+							//w = 1, gridW = 2, 3
+							//w = 2, gridW = 4, 5
+							
+							var asciiReplaceIndex = w%2;
+							
 							if (h == height)
 							{
 								a = hexAscii.length - 1;
@@ -130,26 +158,35 @@
 								}
 								if (h < grid[w].length)
 								{
-									if (tooltips[w][h] != "&nbsp;")
+									if (a == 3)
 									{
-										var toolTipReplace = "<span class=\"tooltip\">" + grid[w][h] + "<span class=\"tooltiptext\">" + tooltips[w][h] + "</span></span>"
-										addToLine = addToLine.replace("[REPLACE_ME]", toolTipReplace);
+										var replacementSymbol = grid[w*2][h];
+										if (tooltips[w*2][h] != "&nbsp;")
+										{
+											replacementSymbol = "<span class=\"tooltip\">" + grid[w*2][h] + "<span class=\"tooltiptext\">" + tooltips[w*2][h] + "</span></span>";
+										}
+										addToLine = addToLine.replace("[REPLACE_ME_0]", replacementSymbol);
 									}
-									else
+									else if (a === 6)
 									{
-										addToLine = addToLine.replace("[REPLACE_ME]", grid[w][h]);
+										var replacementSymbol = grid[w*2+1][h];
+										if (tooltips[w*2+1][h] != "&nbsp;")
+										{
+											replacementSymbol = "<span class=\"tooltip\">" + grid[w*2+1][h] + "<span class=\"tooltiptext\">" + tooltips[w*2+1][h] + "</span></span>";
+										}
+										addToLine = addToLine.replace("[REPLACE_ME_1]", replacementSymbol);
 									}
 								}
-								else
-								{
-									addToLine = addToLine.replace("[REPLACE_ME]", "&nbsp;");
-								}
+								
 								line += addToLine;
 							}
 						}
 						lines += line + "<br/>";
 					}
 				}
+				
+				lines = lines.replace(/\[REPLACE_ME_0\]/g, "&nbsp;");
+				lines = lines.replace(/\[REPLACE_ME_1\]/g, "&nbsp;");
 				
 				$('#drawDiv').html(lines);
 			}
