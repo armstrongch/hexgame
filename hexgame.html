@@ -20,18 +20,50 @@
 				"&nbsp;&nbsp;&nbsp;_______&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;",//0
 				"&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\\&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;",//1
 				"&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\\&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;",//2
-				"/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\\________",//3
+				"/&nbsp;&nbsp;&nbsp;&nbsp;[REPLACE_ME]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\\________",//3
 				"\\&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;",//4
 				"&nbsp;\\&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", //5
 				"&nbsp;&nbsp;\\_______/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;",//6
-			]
+			];
+			
+			var spaceAscii = "&nbsp;";
+			
+			var grid = [];
+			var width = 0;
+			var height = 0;
 			
 			function setup()
 			{
-				var width = 4;
-				var height = 6;
-				var lines = "";
+				width = 5;
+				height = 5;
+				lines = "";
 				
+				grid = [];
+				for (let w = 0; w < width; w++)
+				{
+					var col = [];
+					var secondCol = [];
+					for (let h = 0; h < height; h++)
+					{
+						col.push("&nbsp;");
+						if ((w < width - 1) && (h < height - 1))
+						{
+							secondCol.push("&nbsp;");
+						}
+					}
+					grid.push(col);
+					if (secondCol.length > 0)
+					{
+						grid.push(secondCol);
+					}
+				}
+				
+				grid[2][2] = "@";
+				drawGrid();
+			}
+			
+			function drawGrid()
+			{
 				for (let h = 0; h < height + 1; h++)
 				{
 					for (let a = 0; a < hexAscii.length - 1; a++)
@@ -55,13 +87,22 @@
 									line += hexAscii[6];
 								}
 							}
-							else if ((a == 3) && (w == width-1))
-							{
-								line += hexAscii[a].substring(0, hexAscii[a].indexOf("\\") + 1);
-							}
 							else
 							{
-								line += hexAscii[a];
+								var addToLine = hexAscii[a];
+								if ((a == 3) && (w == width - 1))
+								{
+									addToLine = hexAscii[a].substring(0, hexAscii[a].indexOf("\\") + 1);
+								}
+								if (h < grid[w].length)
+								{
+									addToLine = addToLine.replace("[REPLACE_ME]", grid[w][h]);
+								}
+								else
+								{
+									addToLine = addToLine.replace("[REPLACE_ME]", "&nbsp;");
+								}
+								line += addToLine;
 							}
 						}
 						lines += line + "<br/>";
