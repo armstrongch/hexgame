@@ -63,8 +63,8 @@
 			{
 				grid = [];
 				tooltips = [];
-				width = 3;
-				height = 3;
+				width = 4;
+				height = 4;
 				lines = "";
 				
 				for (let w = 0; w < width; w++)
@@ -92,8 +92,20 @@
 					}
 				}
 				
-				//grid[4][0] = "@";
-				//tooltips[4][0] = "Test";
+				grid[0][0] = "^";
+				tooltips[0][0] = "Pine Tree";
+				
+				grid[0][1] = "^";
+				tooltips[0][1] = "Pine Tree";
+				
+				grid[0][2] = "^";
+				tooltips[0][2] = "Pine Tree";
+				
+				grid[1][0] = "^";
+				tooltips[1][0] = "Pine Tree";
+				
+				grid[1][1] = "@";
+				tooltips[1][1] = "Player";
 
 				drawGrid();
 			}
@@ -130,7 +142,7 @@
 									if (w*2+1 < grid.length)
 									{
 										var replacementSymbol = grid[w*2+1][h-1];
-										if (tooltips[w*2+1][h] != "&nbsp;")
+										if (tooltips[w*2+1][h-1] != "&nbsp;")
 										{
 											replacementSymbol = "<span class=\"tooltip\">" + grid[w*2+1][h-1] + "<span class=\"tooltiptext\">" + tooltips[w*2+1][h-1] + "</span></span>";
 										}
@@ -147,7 +159,7 @@
 								{
 									addToLine = hexAscii[a].substring(0, hexAscii[a].indexOf("\\") + 1);
 								}
-								if (h < grid[w].length)
+								if (h <= grid[w].length)
 								{
 									if (a == 3)
 									{
