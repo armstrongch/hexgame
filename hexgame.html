@@ -92,22 +92,29 @@
 					}
 				}
 				
-				grid[0][0] = "^";
-				tooltips[0][0] = "Pine Tree";
-				
-				grid[0][1] = "^";
-				tooltips[0][1] = "Pine Tree";
-				
-				grid[0][2] = "^";
-				tooltips[0][2] = "Pine Tree";
-				
-				grid[1][0] = "^";
-				tooltips[1][0] = "Pine Tree";
-				
-				grid[1][1] = "@";
-				tooltips[1][1] = "Player";
+				addGridItem(0, 0, "^");
+				addGridItem(0, 1, "^");
+				addGridItem(0, 2, "^");
+				addGridItem(1, 0, "^");
+				addGridItem(1, 1, "@");
+				addGridItem(2, 2, "?");
 
 				drawGrid();
+			}
+			
+			var tooltipReference =
+			{
+				"@": "Player",
+				"^": "Pine Tree"
+			}
+			
+			function addGridItem(w, h, symbol)
+			{
+				grid[w][h] = symbol;
+				if (symbol in tooltipReference)
+				{
+					tooltips[w][h] = tooltipReference[symbol];
+				}
 			}
 			
 			function drawGrid()
