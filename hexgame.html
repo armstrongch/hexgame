@@ -92,20 +92,35 @@
 					}
 				}
 				
-				addGridItem(0, 0, "^");
-				addGridItem(0, 1, "^");
-				addGridItem(0, 2, "^");
-				addGridItem(1, 0, "^");
-				addGridItem(1, 1, "@");
-				addGridItem(2, 2, "?");
+				addGridItem(0, 0, "^"); //Pine Tree
+				addGridItem(0, 1, "^"); //Pine Tree
+				addGridItem(0, 2, "^"); //Pine Tree
+				addGridItem(1, 0, "^"); //Pine Tree
+				addGridItem(2, 2, "^"); //Pine Tree
+				addGridItem(3, 0, "^"); //Pine Tree
+				
+				addGridItem(1, 1, "@"); //Goblin
+				
+				addGridItem(4, 0, "w"); //Flowing Water
+				addGridItem(5, 0, "w"); //Flowing Water
+				addGridItem(5, 1, "w"); //Flowing Water
+				addGridItem(4, 2, "w"); //Flowing Water
+				addGridItem(4, 3, "w"); //Flowing Water
+				
+				addGridItem(5, 2, "B"); //Black Bear
 
+				addGridItem(6, 0, "0"); //Cave
+				
 				drawGrid();
 			}
 			
 			var tooltipReference =
 			{
-				"@": "Player",
-				"^": "Pine Tree"
+				"@": "Goblin",
+				"^": "Pine Tree",
+				"w": "Flowing Water",
+				"B": "Black Bear",
+				"0": "Cave"
 			}
 			
 			function addGridItem(w, h, symbol)
