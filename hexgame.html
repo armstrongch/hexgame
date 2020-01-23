@@ -42,7 +42,7 @@
 		</style>
 	</head>
 	
-	<body onload="setup()">
+	<body onload="setup()" onkeydown="keyDown(event)">
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js" type="text/javascript"></script>
 		<div id="drawDiv" class="ms"></div>
 		<br/>
@@ -50,6 +50,11 @@
 			Font Size:<input type="number" value="14" onchange="changeFontSize()" id="fontSizePicker"> <span onclick="hideFontSizePicker()" style="cursor: pointer;">(Hide)</span>
 		<div>
 		<script>
+			function keyDown(event)
+			{
+				//if (event.keyCode)
+			}
+			
 			function changeFontSize()
 			{
 				var newSize = $('#fontSizePicker').val() + "px";
