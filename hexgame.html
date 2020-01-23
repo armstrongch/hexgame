@@ -48,11 +48,131 @@
 		<br/>
 		<div id="resizeDiv">
 			Font Size:<input type="number" value="14" onchange="changeFontSize()" id="fontSizePicker"> <span onclick="hideFontSizePicker()" style="cursor: pointer;">(Hide)</span>
-		<div>
+		</div>
+		<p>Movement Controls: Q W E A S D</p>
 		<script>
 			function keyDown(event)
 			{
-				//if (event.keyCode)
+				if (grid.length == 0)
+				{
+					return;
+				}
+				if (event.keyCode == 87) // w
+				{
+					if (grid[playerCol][playerCell-1] == "&nbsp;")
+					{
+						removeGridItem(playerCol, playerCell);
+						playerCell--;
+						addGridItem(playerCol, playerCell, "@");
+						drawGrid();
+					}
+					else
+					{
+						// handle collisions here
+					}
+				}
+				else if (event.keyCode == 83) // s
+				{
+					if (grid[playerCol][playerCell+1] == "&nbsp;")
+					{
+						removeGridItem(playerCol, playerCell);
+						playerCell++;
+						addGridItem(playerCol, playerCell, "@");
+						drawGrid();
+					}
+					else
+					{
+						// handle collisions here
+					}
+				}
+				else if (event.keyCode == 65) // a
+				{
+					var targetCol = playerCol - 1;
+					var targetCell = playerCell;
+					if (playerCol%2 == 1)
+					{
+						targetCell = playerCell + 1;
+					}
+					
+					if (grid[targetCol][targetCell] == "&nbsp;")
+					{
+						removeGridItem(playerCol, playerCell);
+						playerCol = targetCol;
+						playerCell = targetCell;
+						addGridItem(playerCol, playerCell, "@");
+						drawGrid();
+					}
+					else
+					{
+						// handle collisions here
+					}
+				}
+				else if (event.keyCode == 68) // d
+				{
+					var targetCol = playerCol + 1;
+					var targetCell = playerCell;
+					if (playerCol%2 == 1)
+					{
+						targetCell = playerCell + 1;
+					}
+					
+					if (grid[targetCol][targetCell] == "&nbsp;")
+					{
+						removeGridItem(playerCol, playerCell);
+						playerCol = targetCol;
+						playerCell = targetCell;
+						addGridItem(playerCol, playerCell, "@");
+						drawGrid();
+					}
+					else
+					{
+						// handle collisions here
+					}
+				}
+				else if (event.keyCode == 81) // q
+				{
+					var targetCol = playerCol - 1;
+					var targetCell = playerCell - 1;
+					if (playerCol%2 == 1)
+					{
+						targetCell = playerCell;
+					}
+					
+					if (grid[targetCol][targetCell] == "&nbsp;")
+					{
+						removeGridItem(playerCol, playerCell);
+						playerCol = targetCol;
+						playerCell = targetCell;
+						addGridItem(playerCol, playerCell, "@");
+						drawGrid();
+					}
+					else
+					{
+						// handle collisions here
+					}
+				}
+				else if (event.keyCode == 69) // e
+				{
+					var targetCol = playerCol + 1;
+					var targetCell = playerCell - 1;
+					if (playerCol%2 == 1)
+					{
+						targetCell = playerCell;
+					}
+					
+					if (grid[targetCol][targetCell] == "&nbsp;")
+					{
+						removeGridItem(playerCol, playerCell);
+						playerCol = targetCol;
+						playerCell = targetCell;
+						addGridItem(playerCol, playerCell, "@");
+						drawGrid();
+					}
+					else
+					{
+						// handle collisions here
+					}
+				}
 			}
 			
 			function changeFontSize()
@@ -83,6 +203,8 @@
 			var tooltips = [];
 			var width = 0;
 			var height = 0;
+			var playerCol = 0;
+			var playerCell = 0;
 			
 			function setup()
 			{
@@ -124,28 +246,17 @@
 				addGridItem(2, 2, "^"); //Pine Tree
 				addGridItem(3, 0, "^"); //Pine Tree
 				
-				addGridItem(1, 1, "@"); //Goblin
-				
-				addGridItem(4, 0, "w"); //Flowing Water
-				addGridItem(5, 0, "w"); //Flowing Water
-				addGridItem(5, 1, "w"); //Flowing Water
-				addGridItem(4, 2, "w"); //Flowing Water
-				addGridItem(4, 3, "w"); //Flowing Water
-				
-				addGridItem(5, 2, "B"); //Black Bear
-
-				addGridItem(6, 0, "0"); //Cave
+				addGridItem(4, 1, "@"); //The Wanderer
+				playerCol = 4;
+				playerCell = 1;
 				
 				drawGrid();
 			}
 			
 			var tooltipReference =
 			{
-				"@": "Goblin",
-				"^": "Pine Tree",
-				"w": "Flowing Water",
-				"B": "Black Bear",
-				"0": "Cave"
+				"@": "The Wanderer",
+				"^": "Pine Tree"
 			}
 			
 			function addGridItem(w, h, symbol)
@@ -155,6 +266,12 @@
 				{
 					tooltips[w][h] = tooltipReference[symbol];
 				}
+			}
+			
+			function removeGridItem(w, h)
+			{
+				grid[w][h] = "&nbsp;";
+				tooltips[w][h] = "&nbsp;";
 			}
 			
 			function drawGrid()
