@@ -50,8 +50,249 @@
 			Font Size:<input type="number" value="14" onchange="changeFontSize()" id="fontSizePicker"> <span onclick="hideFontSizePicker()" style="cursor: pointer;">(Hide)</span>
 		</div>
 		<p>Movement Controls: Q W E A S D</p>
-		<p id="infoDiv"></p>
+		<p id="infoP"></p>
+		<p id="statP"></p>
 		<script>
+			
+			var grid = [];
+			var tooltips = [];
+			var width = 0;
+			var height = 0;
+			var playerCol = 0;
+			var playerCell = 0;
+			
+			var Cash = 0;
+			var Life = 3;
+			var Strength = 1;
+			var Charm = 1;
+			var Intellect = 1;
+			
+			var tooltipReference =
+			{
+				"@": "The Wanderer",
+				"^": "Pine Tree",
+				"7": "Timber Giant"
+			}
+			
+			function getBiomeContents(biomeType)
+			{
+				var contents = [];
+				if (biomeType == "Forest")
+				{
+					contents.push("^");
+					contents.push("^");
+					contents.push("^");
+					contents.push("7");
+				}
+				while (contents.length < 7)
+				{
+					contents.push("&nbsp;");
+				}
+				shuffle(contents);
+				return contents;
+			}
+			
+			function getStatString()
+			{
+				return "Cash: " + Cash + " | Life: " + Life + " | Strength: " + Strength + " | Charm : " + Charm + " | Intellect: " + Intellect;
+			}
+			
+			function moveNPCs()
+			{
+				for (let col = 0; col < grid.length; col++)
+				{
+					for (let cell = 0; cell < grid[col].length; cell++)
+					{
+						if (grid[col][cell] != "&nbsp;")
+						{
+							if (!tooltips[col][cell].includes("*")) //NPC has already moved
+							{
+								moveNPC(col, cell, grid[col][cell]);
+							}
+						}
+					}
+				}
+				
+				for (let col = 0; col < grid.length; col++)
+				{
+					for (let cell = 0; cell < grid[col].length; cell++)
+					{
+						tooltips[col][cell] = tooltips[col][cell].replace("*", "");
+					}
+				}
+			}
+			
+			function moveNPC(col, cell, symbol)
+			{
+				if (symbol == "7")
+				{
+					var surroundings = getSurroundings(col, cell);
+					shuffle(surroundings);
+					var targetCol = col;
+					var targetCell = cell;
+					var foundTree = false;
+					for (let i = 0; i < surroundings.length; i++)
+					{
+						if (!foundTree)
+						{
+							if (surroundings[i][0] == "&nbsp;")
+							{
+								targetCol = surroundings[i][1];
+								targetCell = surroundings[i][2];
+								
+								var targetSur = getSurroundings(targetCol, targetCell);
+								for (let j = 0; j < targetSur.length; j++)
+								{
+									if (targetSur[j][0] == "^")
+									{
+										foundTree = true;
+										j = targetSur.length;
+										i = surroundings.length;
+									}
+								}
+							}
+						}
+						
+					}
+					if ((targetCol != col) || (targetCell != cell))
+					{
+						removeGridItem(col, cell);
+						addGridItem(targetCol, targetCell, "7", true);
+					}
+				}
+			}
+			
+			function getSurroundings(col, cell) //returns array of [symbol, col, cell], clockwise from north
+			{
+				var surroundings = [];
+				var surroundingTile = [];
+				
+				if (cell > 0) // w
+				{
+					surroundingTile.push(grid[col][cell-1]);
+					surroundingTile.push(col);
+					surroundingTile.push(cell-1);
+					surroundings.push(surroundingTile);
+				}
+				else
+				{
+					surroundingTile.push("NA");
+					surroundingTile.push(-1);
+					surroundingTile.push(-1);
+					surroundings.push(surroundingTile);
+				}
+				
+				var targetCol = col + 1; // e
+				var targetCell = cell - 1;
+				if (col%2 == 1)
+				{
+					targetCell = cell;
+				}
+				var surroundingTile = [];
+				
+				if ((targetCol < grid.length) && (targetCell >= 0))
+				{
+					surroundingTile.push(grid[targetCol][targetCell]);
+					surroundingTile.push(targetCol);
+					surroundingTile.push(targetCell);
+					surroundings.push(surroundingTile);
+				}
+				else
+				{
+					surroundingTile.push("NA");
+					surroundingTile.push(-1);
+					surroundingTile.push(-1);
+					surroundings.push(surroundingTile);
+				}
+				
+				targetCol = col + 1; // d
+				targetCell = cell;
+				if (col%2 == 1)
+				{
+					targetCell = cell + 1;
+				}
+				var surroundingTile = [];
+				
+				if ((targetCol < grid.length) && (targetCell < grid[targetCol].length))
+				{
+					surroundingTile.push(grid[targetCol][targetCell]);
+					surroundingTile.push(targetCol);
+					surroundingTile.push(targetCell);
+					surroundings.push(surroundingTile);
+				}
+				else
+				{
+					surroundingTile.push("NA");
+					surroundingTile.push(-1);
+					surroundingTile.push(-1);
+					surroundings.push(surroundingTile);
+				}
+				
+				var surroundingTile = [];
+				if (cell < grid[col].length - 1) // s
+				{
+					surroundingTile.push(grid[col][cell+1]);
+					surroundingTile.push(col);
+					surroundingTile.push(cell+1);
+					surroundings.push(surroundingTile);
+				}
+				else
+				{
+					surroundingTile.push("NA");
+					surroundingTile.push(-1);
+					surroundingTile.push(-1);
+					surroundings.push(surroundingTile);
+				}
+				
+				targetCol = col - 1; // a
+				targetCell = cell;
+				if (col%2 == 1)
+				{
+					targetCell = cell + 1;
+				}
+				var surroundingTile = [];
+				
+				if ((targetCol >= 0) && (targetCell < grid[targetCol].length))
+				{
+					surroundingTile.push(grid[targetCol][targetCell]);
+					surroundingTile.push(targetCol);
+					surroundingTile.push(targetCell);
+					surroundings.push(surroundingTile);
+				}
+				else
+				{
+					surroundingTile.push("NA");
+					surroundingTile.push(-1);
+					surroundingTile.push(-1);
+					surroundings.push(surroundingTile);
+				}
+				
+				targetCol = col - 1; // q
+				targetCell = cell - 1;
+				if (col%2 == 1)
+				{
+					targetCell = cell;
+				}
+				var surroundingTile = [];
+				
+				if ((targetCol >= 0) && (targetCell >= 0))
+				{
+					surroundingTile.push(grid[targetCol][targetCell]);
+					surroundingTile.push(targetCol);
+					surroundingTile.push(targetCell);
+					surroundings.push(surroundingTile);
+				}
+				else
+				{
+					surroundingTile.push("NA");
+					surroundingTile.push(-1);
+					surroundingTile.push(-1);
+					surroundings.push(surroundingTile);
+				}
+				
+				return surroundings;
+			}
+			
 			function keyDown(event)
 			{
 				if (grid.length == 0)
@@ -64,7 +305,8 @@
 					{
 						removeGridItem(playerCol, playerCell);
 						playerCell--;
-						addGridItem(playerCol, playerCell, "@");
+						addGridItem(playerCol, playerCell, "@", false);
+						moveNPCs();
 						drawGrid();
 					}
 					else
@@ -78,7 +320,8 @@
 					{
 						removeGridItem(playerCol, playerCell);
 						playerCell++;
-						addGridItem(playerCol, playerCell, "@");
+						addGridItem(playerCol, playerCell, "@", false);
+						moveNPCs();
 						drawGrid();
 					}
 					else
@@ -100,7 +343,8 @@
 						removeGridItem(playerCol, playerCell);
 						playerCol = targetCol;
 						playerCell = targetCell;
-						addGridItem(playerCol, playerCell, "@");
+						addGridItem(playerCol, playerCell, "@", false);
+						moveNPCs();
 						drawGrid();
 					}
 					else
@@ -122,7 +366,8 @@
 						removeGridItem(playerCol, playerCell);
 						playerCol = targetCol;
 						playerCell = targetCell;
-						addGridItem(playerCol, playerCell, "@");
+						addGridItem(playerCol, playerCell, "@", false);
+						moveNPCs();
 						drawGrid();
 					}
 					else
@@ -144,7 +389,8 @@
 						removeGridItem(playerCol, playerCell);
 						playerCol = targetCol;
 						playerCell = targetCell;
-						addGridItem(playerCol, playerCell, "@");
+						addGridItem(playerCol, playerCell, "@", false);
+						moveNPCs();
 						drawGrid();
 					}
 					else
@@ -166,7 +412,8 @@
 						removeGridItem(playerCol, playerCell);
 						playerCol = targetCol;
 						playerCell = targetCell;
-						addGridItem(playerCol, playerCell, "@");
+						addGridItem(playerCol, playerCell, "@", false);
+						moveNPCs();
 						drawGrid();
 					}
 					else
@@ -178,7 +425,9 @@
 			
 			function objectCollision(objectName)
 			{
-				$('#infoDiv').html('You cannot interact with ' + tooltipReference[objectName]);
+				$('#infoP').html('You cannot interact with ' + tooltipReference[objectName]);
+				moveNPCs();
+				drawGrid();
 			}
 			
 			function changeFontSize()
@@ -202,15 +451,6 @@
 				"&nbsp;\\&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", //5
 				"&nbsp;&nbsp;\\_______/&nbsp;&nbsp;&nbsp;&nbsp;[REPLACE_ME_1]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;",//6
 			];
-			
-			var spaceAscii = "&nbsp;";
-			
-			var grid = [];
-			var tooltips = [];
-			var width = 0;
-			var height = 0;
-			var playerCol = 0;
-			var playerCell = 0;
 			
 			function setup()
 			{
@@ -245,32 +485,49 @@
 					}
 				}
 				
-				addGridItem(0, 0, "^"); //Pine Tree
-				addGridItem(0, 1, "^"); //Pine Tree
-				addGridItem(0, 2, "^"); //Pine Tree
-				addGridItem(1, 0, "^"); //Pine Tree
-				addGridItem(2, 2, "^"); //Pine Tree
-				addGridItem(3, 0, "^"); //Pine Tree
+				for (let i = 0; i < 5; i++)
+				{
+					if (i != 2) //Ignore Player Row
+					{
+						var newBiome = getBiomeContents("Forest");
+						var longColumnIndex = i * 2;
+						var shortColumnIndex = i < 2 ? longColumnIndex + 1 : longColumnIndex - 1;
+						for (let j = 0; j < newBiome.length; j++)
+						{
+							if (j < 4)
+							{
+								addGridItem(longColumnIndex, j, newBiome[j], false);
+							}
+							else
+							{
+								addGridItem(shortColumnIndex, j-4, newBiome[j], false);
+							}
+						}
+					}
+					
+				}
 				
-				addGridItem(4, 1, "@"); //The Wanderer
+				addGridItem(4, 4, "@", false); //The Wanderer
 				playerCol = 4;
-				playerCell = 1;
+				playerCell = 4;
 				
 				drawGrid();
 			}
 			
-			var tooltipReference =
-			{
-				"@": "The Wanderer",
-				"^": "Pine Tree"
-			}
-			
-			function addGridItem(w, h, symbol)
+			function addGridItem(w, h, symbol, NPCMovement)
 			{
 				grid[w][h] = symbol;
 				if (symbol in tooltipReference)
 				{
-					tooltips[w][h] = tooltipReference[symbol];
+					if (NPCMovement)
+					{
+						tooltips[w][h] = tooltipReference[symbol] + "*";
+					}
+					else
+					{
+						tooltips[w][h] = tooltipReference[symbol];
+					}
+					
 				}
 			}
 			
@@ -353,6 +610,19 @@
 				lines = lines.replace(/\[REPLACE_ME_1\]/g, "&nbsp;");
 				
 				$('#drawDiv').html(lines);
+				$('#statP').html(getStatString());
+			}
+			
+			//Taken from: https://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array
+			function shuffle(a) {
+				var j, x, i;
+				for (i = a.length - 1; i > 0; i--) {
+					j = Math.floor(Math.random() * (i + 1));
+					x = a[i];
+					a[i] = a[j];
+					a[j] = x;
+				}
+				return a;
 			}
 		</script>
 	</body>
