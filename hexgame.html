@@ -5,8 +5,8 @@
 		<title>Hex Game</title>
 		<style type="text/css">
 			body {
-				<!---color: black;-->
-				<!---color: white;-->
+				<!--background-color: black;-->
+				<!--color: white;-->
 				font-size: 14px;
 			}
 			
@@ -356,6 +356,7 @@
 						playerCell--;
 						addGridItem(playerCol, playerCell, "@", false);
 						moveNPCs();
+						$('#infoP').html('');
 						drawGrid();
 					}
 					else
@@ -371,6 +372,7 @@
 						playerCell++;
 						addGridItem(playerCol, playerCell, "@", false);
 						moveNPCs();
+						$('#infoP').html('');
 						drawGrid();
 					}
 					else
@@ -394,6 +396,7 @@
 						playerCell = targetCell;
 						addGridItem(playerCol, playerCell, "@", false);
 						moveNPCs();
+						$('#infoP').html('');
 						drawGrid();
 					}
 					else
@@ -417,6 +420,7 @@
 						playerCell = targetCell;
 						addGridItem(playerCol, playerCell, "@", false);
 						moveNPCs();
+						$('#infoP').html('');
 						drawGrid();
 					}
 					else
@@ -440,6 +444,7 @@
 						playerCell = targetCell;
 						addGridItem(playerCol, playerCell, "@", false);
 						moveNPCs();
+						$('#infoP').html('');
 						drawGrid();
 					}
 					else
@@ -463,6 +468,7 @@
 						playerCell = targetCell;
 						addGridItem(playerCol, playerCell, "@", false);
 						moveNPCs();
+						$('#infoP').html('');
 						drawGrid();
 					}
 					else
@@ -474,7 +480,14 @@
 			
 			function objectCollision(objectName)
 			{
-				$('#infoP').html('You cannot interact with ' + tooltipReference[objectName]);
+				if (objectName == undefined)
+				{
+					$('#infoP').html('You cannot wander into the wilderness alone.');
+				}
+				else
+				{
+					$('#infoP').html('You cannot interact with ' + tooltipReference[objectName]);
+				}
 				moveNPCs();
 				drawGrid();
 			}
