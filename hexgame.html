@@ -63,7 +63,7 @@
 			
 			var Cash = 0;
 			var Life = 3;
-			var Strength = 1;
+			var Strength = 1; 
 			var Charm = 1;
 			var Intellect = 1;
 			
@@ -71,7 +71,8 @@
 			{
 				"@": "The Wanderer",
 				"^": "Pine Tree",
-				"7": "Timber Giant"
+				"7": "Timber Giant",
+				"r": "Raccoon"
 			}
 			
 			function getBiomeContents(biomeType)
@@ -83,6 +84,7 @@
 					contents.push("^");
 					contents.push("^");
 					contents.push("7");
+					contents.push("r");
 				}
 				while (contents.length < 7)
 				{
@@ -158,6 +160,53 @@
 					{
 						removeGridItem(col, cell);
 						addGridItem(targetCol, targetCell, "7", true);
+					}
+				}
+				else if (symbol == "r")
+				{
+					var surroundings = getSurroundings(col, cell);
+					var foundPlayer = false;
+					var targetCol = col;
+					var targetCell = cell;
+					for (let i = 0; i < surroundings.length; i++)
+					{
+						if (surroundings[i][0] == "@")
+						{
+							foundPlayer = true;
+							i = surroundings.length;
+						}
+					}
+					if (foundPlayer)
+					{
+						shuffle(surroundings);
+						for (let i = 0; i < surroundings.length; i++)
+						{
+							if (surroundings[i][0] == "&nbsp;")
+							{
+								targetCol = surroundings[i][1];
+								targetCell = surroundings[i][2];
+								
+								var targetSur = getSurroundings(targetCol, targetCell);
+								var targetSurroundingsContainsPlayer = false;
+								for (let j = 0; j < targetSur.length; j++)
+								{
+									if (targetSur[j][0] == "@")
+									{
+										targetSurroundingsContainsPlayer = true;
+										j = targetSur.length;
+									}
+								}
+								if (!targetSurroundingsContainsPlayer)
+								{
+									i = surroundings.length;
+								}
+							}
+						}
+					}
+					if ((targetCol != col) || (targetCell != cell))
+					{
+						removeGridItem(col, cell);
+						addGridItem(targetCol, targetCell, "r", true);
 					}
 				}
 			}
