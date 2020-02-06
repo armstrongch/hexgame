@@ -75,16 +75,23 @@
 				"r": "Raccoon",
 				"H": "Farmhouse",
 				"&": "Scarecrow",
-				"m": "Sheep"
+				"m": "Sheep",
+				"!": "Tombstone",
+				"*": "Pumpkin",
+				"?": "Harvest Matriarch"
 			}
 			
 			function getRandomBiomeType()
 			{
-				var numBiomes = 2;
+				var numBiomes = 3;
 				var randInt = Math.floor(Math.random()*numBiomes);
 				if (randInt == 0)
 				{
 					return "Forest";
+				}
+				else if (randInt == 1)
+				{
+					return "Pumpkin Patch";
 				}
 				else
 				{
@@ -103,6 +110,15 @@
 					contents.push("^");
 					contents.push("7");
 					contents.push("r");
+				}
+				else if (biomeType == "Pumpkin Patch")
+				{
+					contents.push("!");
+					contents.push("!");
+					contents.push("*");
+					contents.push("*");
+					contents.push("*");
+					contents.push("?");
 				}
 				else if (biomeType == "Farm")
 				{
@@ -133,7 +149,7 @@
 					contents.push("&nbsp;");
 				}
 				
-				if (biomeType == "Forest")
+				if ((biomeType == "Forest") || (biomeType == "Pumpkin Patch"))
 				{
 					shuffle(contents);
 				}
@@ -391,6 +407,89 @@
 					{
 						removeGridItem(col, cell);
 						addGridItem(targetCol, targetCell, "m", true);
+					}
+				}
+				else if (symbol == "?") // Harvest Matriarchs behave like timber giants, prioritizing tombstones instead of trees
+				{
+					var surroundings = getSurroundings(col, cell);
+					shuffle(surroundings);
+					var targetCol = col;
+					var targetCell = cell;
+					var foundTree = false;
+					for (let i = 0; i < surroundings.length; i++)
+					{
+						if (!foundTree)
+						{
+							if (surroundings[i][0] == "&nbsp;")
+							{
+								targetCol = surroundings[i][1];
+								targetCell = surroundings[i][2];
+								
+								var targetSur = getSurroundings(targetCol, targetCell);
+								for (let j = 0; j < targetSur.length; j++)
+								{
+									if (targetSur[j][0] == "!")
+									{
+										foundTree = true;
+										j = targetSur.length;
+										i = surroundings.length;
+									}
+								}
+							}
+						}
+						
+					}
+					if ((targetCol != col) || (targetCell != cell))
+					{
+						removeGridItem(col, cell);
+						addGridItem(targetCol, targetCell, "?", true);
+					}
+				}
+				else if (symbol == "*") // Pumpkins behave like raccoons, avoiding the Harvest Matriarch instead of the player
+				{
+					var surroundings = getSurroundings(col, cell);
+					var foundPlayer = false;
+					var targetCol = col;
+					var targetCell = cell;
+					for (let i = 0; i < surroundings.length; i++)
+					{
+						if (surroundings[i][0] == "?")
+						{
+							foundPlayer = true;
+							i = surroundings.length;
+						}
+					}
+					if (foundPlayer)
+					{
+						shuffle(surroundings);
+						for (let i = 0; i < surroundings.length; i++)
+						{
+							if (surroundings[i][0] == "&nbsp;")
+							{
+								targetCol = surroundings[i][1];
+								targetCell = surroundings[i][2];
+								
+								var targetSur = getSurroundings(targetCol, targetCell);
+								var targetSurroundingsContainsPlayer = false;
+								for (let j = 0; j < targetSur.length; j++)
+								{
+									if (targetSur[j][0] == "?")
+									{
+										targetSurroundingsContainsPlayer = true;
+										j = targetSur.length;
+									}
+								}
+								if (!targetSurroundingsContainsPlayer)
+								{
+									i = surroundings.length;
+								}
+							}
+						}
+					}
+					if ((targetCol != col) || (targetCell != cell))
+					{
+						removeGridItem(col, cell);
+						addGridItem(targetCol, targetCell, "*", true);
 					}
 				}
 			}
