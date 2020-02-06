@@ -72,8 +72,26 @@
 				"@": "The Wanderer",
 				"^": "Pine Tree",
 				"7": "Timber Giant",
-				"r": "Raccoon"
+				"r": "Raccoon",
+				"H": "Farmhouse",
+				"&": "Scarecrow",
+				"m": "Sheep"
 			}
+			
+			function getRandomBiomeType()
+			{
+				var numBiomes = 2;
+				var randInt = Math.floor(Math.random()*numBiomes);
+				if (randInt == 0)
+				{
+					return "Forest";
+				}
+				else
+				{
+					return "Farm";
+				}
+			}
+			
 			
 			function getBiomeContents(biomeType)
 			{
@@ -86,11 +104,40 @@
 					contents.push("7");
 					contents.push("r");
 				}
+				else if (biomeType == "Farm")
+				{
+					var sheepLocation = 2 + Math.ceil(Math.random()*5);
+					for (let i = 1; i <= 7; i++)
+					{
+						if (i == 1)
+						{
+							contents.push("H");
+						}
+						else if (i == 2)
+						{
+							contents.push("&");
+						}
+						else if (i == sheepLocation)
+						{
+							contents.push("m");
+						}
+						else
+						{
+							contents.push("&nbsp;");
+						}
+					}
+				}
+				
 				while (contents.length < 7)
 				{
 					contents.push("&nbsp;");
 				}
-				shuffle(contents);
+				
+				if (biomeType == "Forest")
+				{
+					shuffle(contents);
+				}
+				
 				return contents;
 			}
 			
@@ -126,7 +173,7 @@
 			
 			function moveNPC(col, cell, symbol)
 			{
-				if (symbol == "7")
+				if (symbol == "7") // Timber Giants move randomly, but prioritize spaces next to trees
 				{
 					var surroundings = getSurroundings(col, cell);
 					shuffle(surroundings);
@@ -162,7 +209,7 @@
 						addGridItem(targetCol, targetCell, "7", true);
 					}
 				}
-				else if (symbol == "r")
+				else if (symbol == "r") // Raccoons stay still unless they are next to the player, in which case they move randomly
 				{
 					var surroundings = getSurroundings(col, cell);
 					var foundPlayer = false;
@@ -207,6 +254,143 @@
 					{
 						removeGridItem(col, cell);
 						addGridItem(targetCol, targetCell, "r", true);
+					}
+				}
+				else if (symbol == "&") // Scarecrows patrol their biome in a loop
+				{
+					if (grid[col][0] == "H") // If this is the farm row
+					{
+						if ((grid[col][cell+1] == "&nbsp;") || (grid[col][cell+1] == "m")) // If the space below is empty or contains sheep
+						{
+							if (grid[col][cell+1] == "m")
+							{
+								addGridItem(col, cell, "m", false);
+							}
+							else
+							{
+								removeGridItem(col, cell);
+							}
+							addGridItem(col, cell+1, "&", true); //Move down
+						}
+						else if (cell == 4) // If this is the bottom
+						{
+							if (col < width) // If this row is left of center
+							{
+								if ((grid[col+1][cell-1] == "&nbsp;") || (grid[col+1][cell-1] == "m")) // if target cell is empty or contains sheep
+								{
+									if (grid[col+1][cell-1] == "m")
+									{
+										addGridItem(col, cell, "m", false);
+									}
+									else
+									{
+										removeGridItem(col, cell);
+									}
+									addGridItem(col+1, cell-1, "&", true); //Move right
+								}
+							}
+							else // If this row is right of center
+							{
+								if ((grid[col-1][cell-1] == "&nbsp;") || (grid[col-1][cell-1] == "m")) // if target cell is empty or contains sheep
+								{
+									if (grid[col-1][cell-1] == "m")
+									{
+										addGridItem(col, cell, "m", false);
+									}
+									else
+									{
+										removeGridItem(col, cell);
+									}
+									addGridItem(col-1, cell-1, "&", true); //Move left
+								}
+							}
+						}
+						// Otherwise, do nothing
+					}
+					else // If this is not the farm row
+					{
+						if ((grid[col][cell-1] == "&nbsp;") || (grid[col][cell-1] == "m")) // If the space above is empty or contains sheep
+						{
+							if (grid[col][cell-1] == "m")
+							{
+								addGridItem(col, cell, "m", false);
+							}
+							else
+							{
+								removeGridItem(col, cell);
+							}
+							addGridItem(col, cell-1, "&", true); //Move up
+						}
+						else if (cell == 0) // If this is the top
+						{
+							if (col < width) // If this row is left of center
+							{
+								if ((grid[col-1][cell+1] == "&nbsp;") || (grid[col-1][cell+1] == "m")) // if target cell is empty or contains sheep
+								{
+									if (grid[col-1][cell+1] == "m")
+									{
+										addGridItem(col, cell, "m", false);
+									}
+									else
+									{
+										removeGridItem(col, cell);
+									}
+									addGridItem(col-1, cell+1, "&", true); //Move left
+								}
+							}
+							else //If this row is right of center
+							{
+								if  ((grid[col+1][cell+1] == "&nbsp;") || (grid[col+1][cell+1] == "m"))// If target cell is empty or contains sheep
+								{
+									if (grid[col+1][cell+1] == "m")
+									{
+										addGridItem(col, cell, "m", false);
+									}
+									else
+									{
+										removeGridItem(col, cell);
+									}
+									addGridItem(col+1, cell+1, "&", true); //Move right
+								}
+							}
+						}
+						// Otherwise, do nothing
+					}
+				}
+				else if (symbol == "m") // Sheep behave like timber giants, prioritizing scarecrows instead of trees
+				{
+					var surroundings = getSurroundings(col, cell);
+					shuffle(surroundings);
+					var targetCol = col;
+					var targetCell = cell;
+					var foundTree = false;
+					for (let i = 0; i < surroundings.length; i++)
+					{
+						if (!foundTree)
+						{
+							if (surroundings[i][0] == "&nbsp;")
+							{
+								targetCol = surroundings[i][1];
+								targetCell = surroundings[i][2];
+								
+								var targetSur = getSurroundings(targetCol, targetCell);
+								for (let j = 0; j < targetSur.length; j++)
+								{
+									if (targetSur[j][0] == "&")
+									{
+										foundTree = true;
+										j = targetSur.length;
+										i = surroundings.length;
+									}
+								}
+							}
+						}
+						
+					}
+					if ((targetCol != col) || (targetCell != cell))
+					{
+						removeGridItem(col, cell);
+						addGridItem(targetCol, targetCell, "m", true);
 					}
 				}
 			}
@@ -551,7 +735,9 @@
 				{
 					if (i != 2) //Ignore Player Row
 					{
-						var newBiome = getBiomeContents("Forest");
+						var newBiomeType = getRandomBiomeType();
+						var newBiome = getBiomeContents(newBiomeType);
+						
 						var longColumnIndex = i * 2;
 						var shortColumnIndex = i < 2 ? longColumnIndex + 1 : longColumnIndex - 1;
 						for (let j = 0; j < newBiome.length; j++)
